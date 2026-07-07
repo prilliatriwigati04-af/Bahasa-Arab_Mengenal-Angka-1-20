@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kosa Kata Angka Arab Gamified</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .arabic-text { font-family: 'Amiri', serif; }
+    .flip-card { perspective: 1000px; }
+    .flip-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+    .flip-card.is-flipped .flip-inner { transform: rotateY(180deg); }
+    .flip-front, .flip-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .flip-back { transform: rotateY(180deg); }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased selection:bg-emerald-100">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50 backdrop-blur-md bg-white/80">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-center sm:text-left">
+        <h1 class="text-2xl font-bold text-emerald-700 tracking-tight flex items-center justify-center sm:justify-start gap-2">
+          <span>🔢</span> Angka Arab Playroom
+        </h1>
+        <p class="text-sm text-slate-500 mt-0.5">Pilih mode belajar kartu flashcard atau uji kemampuanmu di mode kuis!</p>
+      </div>
+      
+      <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
+        <button id="tab-learn" class="flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-lg bg-white text-slate-800 shadow-sm transition-all">
+          🎴 Belajar
+        </button>
+        <button id="tab-quiz" class="flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+          🏆 Mode Kuis
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-6xl mx-auto px-4 mt-6">
+    <div class="relative h-48 sm:h-64 w-full rounded-2xl overflow-hidden shadow-md border border-slate-200">
+      <img 
+        src="https://raw.githubusercontent.com/prilliatriwigati04-af/Bahasa-Arab_Mengenal-Angka-1-20/refs/heads/main/Madina.jpg" 
+        alt="Madina Background" 
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-gradient-to-r from-emerald-950/80 to-transparent flex items-center p-6 sm:p-10">
+        <div class="max-w-md text-white space-y-1">
+          <span class="text-xs font-bold tracking-widest uppercase text-emerald-300 bg-emerald-900/50 px-2 py-1 rounded-md backdrop-blur-sm">Al-Arabiya</span>
+          <h2 class="text-xl sm:text-3xl font-bold tracking-tight">Mengenal Angka Arab</h2>
+          <p class="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">Metode interaktif modern untuk menghafal kosakata angka 1 sampai 20 dengan mudah dan menyenangkan.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+
+    <div id="section-learn" class="space-y-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200/60">
+        <div class="bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 text-xs font-semibold text-emerald-800">
+          Progress: <span id="progress-text">0/20</span> Terbuka
+        </div>
+        <div class="flex gap-2 w-full sm:w-auto">
+          <button id="btn-flip-all" class="flex-1 sm:flex-none px-4 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">
+            Balik Semua
+          </button>
+          <button id="btn-reset" class="flex-1 sm:flex-none px-4 py-1.5 text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all">
+            Reset Progress
+          </button>
+        </div>
+      </div>
+
+      <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden -mt-2">
+        <div id="progress-bar" class="bg-emerald-500 h-1.5 w-0 transition-all duration-500"></div>
+      </div>
+
+      <div id="flashcard-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+        </div>
+    </div>
+
+    <div id="section-quiz" class="hidden max-w-xl mx-auto mt-4">
+      
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-6">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div>
+            <span class="text-xs text-slate-400 block uppercase font-bold tracking-wider">Skor Sekarang</span>
+            <span id="quiz-score" class="text-2xl font-bold text-emerald-600">0</span>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400 block uppercase font-bold tracking-wider">Sisa Nyawa</span>
+            <span id="quiz-lives" class="text-xl tracking-wide">❤️❤️❤️</span>
+          </div>
+        </div>
+
+        <div class="text-center py-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+          <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Berapakah Nilai Angka Arab Ini?</p>
+          <h2 id="quiz-question-arabic" class="arabic-text text-7xl font-bold text-slate-800 select-none animate-bounce">١</h2>
+          <p id="quiz-question-word" class="arabic-text text-xl text-emerald-600 font-medium mt-1">وَاحِدٌ</p>
+        </div>
+
+        <div id="quiz-options" class="grid grid-cols-2 gap-3">
+          </div>
+
+        <div id="quiz-feedback" class="hidden text-center text-sm font-bold p-2.5 rounded-lg transition-all"></div>
+      </div>
+
+      <div id="quiz-gameover-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+          <span id="modal-icon" class="text-5xl block mb-2">🎮</span>
+          <h3 id="modal-title" class="text-xl font-bold text-slate-800">Permainan Selesai</h3>
+          <p id="modal-desc" class="text-sm text-slate-500 mt-2">Skor akhir kamu dikunci pada angka tertentu.</p>
+          <div class="bg-slate-50 rounded-xl py-3 my-4 border border-slate-100">
+            <span class="text-xs text-slate-400 block uppercase font-semibold">Total Skor</span>
+            <span id="modal-final-score" class="text-3xl font-black text-emerald-600">0</span>
+          </div>
+          <button id="btn-quiz-restart" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md shadow-emerald-200 transition-all">
+            Main Lagi
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="text-center py-8 text-xs text-slate-400 border-t border-slate-100 mt-12">
+    Aplikasi Flashcard & Kuis Angka Arab • Berjalan Lancar di Semua Perangkat
+  </footer>
+
+  <script>
+    // Dataset lengkap 1 - 20
+    const arabicNumbersData = [
+      { num: "١", ar: "وَاحِدٌ", latin: "Wāhid", id: "1" },
+      { num: "٢", ar: "اِثْنَانِ", latin: "Itsnān", id: "2" },
+      { num: "٣", ar: "ثَلَاثَةٌ", latin: "Tsalātsah", id: "3" },
+      { num: "٤", ar: "أَرْبَعَةٌ", latin: "Arba'ah", id: "4" },
+      { num: "٥", ar: "خَمْسَةٌ", latin: "Khamsah", id: "5" },
+      { num: "٦", ar: "سِتَّةٌ", latin: "Sittah", id: "6" },
+      { num: "٧", ar: "سَبْعَةٌ", latin: "Sab'ah", id: "7" },
+      { num: "٨", ar: "ثَمَانِيَةٌ", latin: "Tsamāniyah", id: "8" },
+      { num: "٩", ar: "تِسْعَةٌ", latin: "Tis'ah", id: "9" },
+      { num: "١٠", ar: "عَشَرَةٌ", latin: "'Asyarah", id: "10" },
+      { num: "١١", ar: "أَحَدَ عَشَرَ", latin: "Ahada 'Asyara", id: "11" },
+      { num: "١٢", ar: "اِثْنَا عَشَرَ", latin: "Itsnā 'Asyara", id: "12" },
+      { num: "١٣", ar: "ثَلَاثَةَ عَشَرَ", latin: "Tsalātsata 'Asyara", id: "13" },
+      { num: "١٤", ar: "أَرْبَعَةَ عَشَرَ", latin: "Arba'ata 'Asyara", id: "14" },
+      { num: "١٥", ar: "خَمْسَةَ عَشَرَ", latin: "Khamsata 'Asyara", id: "15" },
+      { num: "١٦", ar: "سِتَّةَ عَشَرَ", latin: "Sittata 'Asyara", id: "16" },
+      { num: "١٧", ar: "سَبْعَةَ عَشَرَ", latin: "Sab'ata 'Asyara", id: "17" },
+      { num: "١٨", ar: "ثَمَانِيَةَ عَشَرَ", latin: "Tsamāniyata 'Asyara", id: "18" },
+      { num: "١٩", ar: "تِسْعَةَ عَشَرَ", latin: "Tis'ata 'Asyara", id: "19" },
+      { num: "٢٠", ar: "عِشْرُوْنَ", latin: "'Isyrūn", id: "20" }
+    ];
+
+    // --- MANAJEMEN TAB / MODE ---
+    const tabLearn = document.getElementById('tab-learn');
+    const tabQuiz = document.getElementById('tab-quiz');
+    const secLearn = document.getElementById('section-learn');
+    const secQuiz = document.getElementById('section-quiz');
+
+    tabLearn.addEventListener('click', () => {
+      switchTab(tabLearn, tabQuiz, secLearn, secQuiz);
+    });
+
+    tabQuiz.addEventListener('click', () => {
+      switchTab(tabQuiz, tabLearn, secQuiz, secLearn);
+      initQuiz();
+    });
+
+    function switchTab(activeTab, inactiveTab, showSec, hideSec) {
+      activeTab.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+      activeTab.classList.remove('text-slate-600');
+      inactiveTab.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+      inactiveTab.classList.add('text-slate-600');
+      showSec.classList.remove('hidden');
+      hideSec.classList.add('hidden');
+      if('speechSynthesis' in window) window.speechSynthesis.cancel();
+    }
+
+    // --- EFEK SUARA BARU: SUARA KLIK RENYAH UNTUK FLASHCARD ---
+    function playFlipSound() {
+      if (!window.AudioContext && !window.webkitAudioContext) return;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      
+      // Resume context jika terkena aturan autoplay browser
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sine'; 
+      // Membuat frekuensi naik cepat kemudian turun tipis untuk efek mekanis "pop/click"
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.08);
+      
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.09);
+    }
+
+    // --- LOGIKA MODE BELAJAR (FLASHCARDS) ---
+    const grid = document.getElementById('flashcard-grid');
+    const flippedCards = new Set();
+
+    function pelafalanSuara(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const ucapan = new SpeechSynthesisUtterance(text);
+        ucapan.lang = 'ar-SA'; 
+        ucapan.rate = 0.85;
+        window.speechSynthesis.speak(ucapan);
+      }
+    }
+
+    function updateProgress() {
+      const total = arabicNumbersData.length;
+      const count = flippedCards.size;
+      document.getElementById('progress-text').innerText = `${count}/${total}`;
+      document.getElementById('progress-bar').style.width = `${(count / total) * 100}%`;
+    }
+
+    arabicNumbersData.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'flip-card aspect-square h-full w-full cursor-pointer touch-manipulation focus:outline-none group';
+      
+      card.innerHTML = `
+        <div class="flip-inner relative w-full h-full shadow-md rounded-2xl transition-all duration-500 group-hover:shadow-lg">
+          <div class="flip-front absolute inset-0 bg-white border border-slate-200/80 rounded-2xl flex flex-col items-center justify-between p-4 bg-gradient-to-br from-white to-slate-50/50">
+            <span class="self-start text-xs font-bold text-slate-300 bg-slate-100 px-2 py-0.5 rounded-full">${index + 1}</span>
+            <div class="flex flex-col items-center justify-center flex-grow -mt-2">
+              <span class="arabic-text text-5xl font-bold text-emerald-600 mb-1 select-none">${item.num}</span>
+              <span class="text-sm font-semibold text-slate-500 tracking-wide">Angka ${item.id}</span>
+            </div>
+            <span class="text-[10px] text-slate-400 font-medium">Klik untuk detail</span>
+          </div>
+          <div class="flip-back absolute inset-0 bg-emerald-600 text-white rounded-2xl flex flex-col items-center justify-between p-4 shadow-inner bg-gradient-to-br from-emerald-600 to-teal-700">
+            <div class="w-full flex justify-between items-center text-emerald-200/80">
+              <span class="text-[10px] font-bold tracking-wider uppercase">Cara Baca</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M12 18.75V5.25L7.75 9.5H4.5v5h3.25L12 18.75z" /></svg>
+            </div>
+            <div class="flex flex-col items-center justify-center flex-grow">
+              <span class="arabic-text text-3xl font-bold mb-2 tracking-wide select-none">${item.ar}</span>
+              <span class="text-md font-bold bg-white/20 px-3 py-0.5 rounded-full tracking-wide">${item.latin}</span>
+            </div>
+            <span class="text-[10px] text-emerald-200/60 font-medium">Klik Kembali</span>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        playFlipSound(); // Memainkan suara klik instan saat dipilih
+        card.classList.toggle('is-flipped');
+        
+        if (card.classList.contains('is-flipped')) {
+          flippedCards.add(index);
+          setTimeout(() => pelafalanSuara(item.ar), 150);
+        } else {
+          flippedCards.delete(index);
+        }
+        updateProgress();
+      });
+      grid.appendChild(card);
+    });
+
+    let allFlipped = false;
+    document.getElementById('btn-flip-all').addEventListener('click', () => {
+      const cards = document.querySelectorAll('.flip-card');
+      allFlipped = !allFlipped;
+      playFlipSound(); 
+      
+      cards.forEach((card, index) => {
+        if (allFlipped) { card.classList.add('is-flipped'); flippedCards.add(index); }
+        else { card.classList.remove('is-flipped'); flippedCards.delete(index); }
+      });
+      document.getElementById('btn-flip-all').innerText = allFlipped ? "Tutup Semua" : "Balik Semua";
+      updateProgress();
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      playFlipSound();
+      document.querySelectorAll('.flip-card').forEach(card => card.classList.remove('is-flipped'));
+      flippedCards.clear();
+      allFlipped = false;
+      document.getElementById('btn-flip-all').innerText = "Balik Semua";
+      updateProgress();
+    });
+
+    // --- LOGIKA ENGINE MODE KUIS (GAMIFIED) ---
+    let score = 0;
+    let lives = 3;
+    let currentCorrectAnswer = null;
+
+    function playBeep(type) {
+      if (!window.AudioContext && !window.webkitAudioContext) return;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      if (type === 'correct') {
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        osc.start(); osc.stop(ctx.currentTime + 0.25);
+      } else {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        osc.start(); osc.stop(ctx.currentTime + 0.3);
+      }
+    }
+
+    function initQuiz() {
+      score = 0;
+      lives = 3;
+      document.getElementById('quiz-score').innerText = score;
+      updateLivesUI();
+      document.getElementById('quiz-feedback').className = "hidden text-center text-sm font-bold p-2.5 rounded-lg";
+      nextQuestion();
+    }
+
+    function updateLivesUI() {
+      let heartString = "";
+      for(let i=0; i<3; i++) {
+        heartString += i < lives ? "❤️" : "🖤";
+      }
+      document.getElementById('quiz-lives').innerText = heartString;
+    }
+
+    function nextQuestion() {
+      document.getElementById('quiz-feedback').classList.add('hidden');
+      
+      const randomIndex = Math.floor(Math.random() * arabicNumbersData.length);
+      currentCorrectAnswer = arabicNumbersData[randomIndex];
+
+      document.getElementById('quiz-question-arabic').innerText = currentCorrectAnswer.num;
+      document.getElementById('quiz-question-word').innerText = currentCorrectAnswer.ar;
+
+      let options = [currentCorrectAnswer.id];
+      while(options.length < 4) {
+        const falseIndex = Math.floor(Math.random() * arabicNumbersData.length);
+        const falseId = arabicNumbersData[falseIndex].id;
+        if (!options.includes(falseId)) {
+          options.push(falseId);
+        }
+      }
+
+      options.sort(() => Math.random() - 0.5);
+
+      const optionsContainer = document.getElementById('quiz-options');
+      optionsContainer.innerHTML = '';
+      
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = "py-3.5 px-4 bg-white border-2 border-slate-200 hover:border-emerald-500 active:bg-slate-50 text-slate-700 font-bold text-lg rounded-xl shadow-sm transition-all text-center";
+        btn.innerText = opt;
+        btn.addEventListener('click', () => checkAnswer(opt, btn));
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(chosenValue, selectedButton) {
+      const feedback = document.getElementById('quiz-feedback');
+      feedback.classList.remove('hidden');
+      
+      const buttons = document.querySelectorAll('#quiz-options button');
+      buttons.forEach(b => b.disabled = true);
+
+      if (chosenValue === currentCorrectAnswer.id) {
+        score += 10;
+        document.getElementById('quiz-score').innerText = score;
+        selectedButton.className = "py-3.5 px-4 bg-emerald-500 border-2 border-emerald-600 text-white font-bold text-lg rounded-xl shadow-sm transition-all text-center";
+        feedback.innerText = "✨ Hebat! Jawabanmu Benar (+10)";
+        feedback.className = "text-center text-sm font-bold p-2.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200";
+        playBeep('correct');
+        setTimeout(() => pelafalanSuara(currentCorrectAnswer.ar), 100);
+      } else {
+        lives--;
+        updateLivesUI();
+        selectedButton.className = "py-3.5 px-4 bg-rose-500 border-2 border-rose-600 text-white font-bold text-lg rounded-xl shadow-sm transition-all text-center";
+        feedback.innerText = `Salah! Jawaban yang tepat adalah ${currentCorrectAnswer.id}`;
+        feedback.className = "text-center text-sm font-bold p-2.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200";
+        playBeep('wrong');
+      }
+
+      setTimeout(() => {
+        if (lives <= 0) {
+          showEndModal(false);
+        } else if (score >= 150) {
+          showEndModal(true);
+        } else {
+          nextQuestion();
+        }
+      }, 1500);
+    }
+
+    function showEndModal(isWin) {
+      const modal = document.getElementById('quiz-gameover-modal');
+      modal.classList.remove('hidden');
+      
+      document.getElementById('modal-final-score').innerText = score;
+      if (isWin) {
+        document.getElementById('modal-icon').innerText = "👑";
+        document.getElementById('modal-title').innerText = "Luar Biasa! Kamu Menang";
+        document.getElementById('modal-desc').innerText = "Kamu telah menguasai kosa kata angka Arab dengan sangat baik.";
+      } else {
+        document.getElementById('modal-icon').innerText = "☠️";
+        document.getElementById('modal-title').innerText = "Game Over!";
+        document.getElementById('modal-desc').innerText = "Jangan menyerah, coba lagi untuk mengasah hafalanmu.";
+      }
+    }
+
+    document.getElementById('btn-quiz-restart').addEventListener('click', () => {
+      document.getElementById('quiz-gameover-modal').classList.add('hidden');
+      initQuiz();
+    });
+  </script>
+</body>
+</html>
